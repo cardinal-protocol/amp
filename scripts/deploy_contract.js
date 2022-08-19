@@ -8,7 +8,7 @@ async function main() {
 	);
 
 	const CardinalProtocol = await ethers.getContractFactory(
-		'CardinalProtocol'
+		'contract'
 	);
 
 	const cardinalProtocol = await CardinalProtocol.deploy({
