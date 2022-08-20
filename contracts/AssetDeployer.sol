@@ -1,4 +1,4 @@
-// contracts/StrategyGateway.sol
+// contracts/AssetDeployer.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
@@ -16,10 +16,10 @@ import "./abstract/CardinalProtocolControl.sol";
 
 
 /**
- * @title Strategy Gateway
+ * @title Asset Deployer
  * @author harpoonjs.eth
 */
-contract StrategyGateway is Pausable, CardinalProtocolControl {
+contract AssetDeployer is Pausable, CardinalProtocolControl {
 	/* ========== [EVENT] ========== */
 	event DepositedWETH(
 		uint256 CPAATokenId,
@@ -44,13 +44,11 @@ contract StrategyGateway is Pausable, CardinalProtocolControl {
 
 
 	/* ========== [STATE-VARIABLE][CONSTANT] ========== */
-	address private constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-
+	address private constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 	address private CPAA;
 
 
 	/* ========== [STATE-VARIABLE] ========== */
-	mapping (uint64 => address) _whitelistedStrategyAddresses;
 	mapping (uint256 => uint256) _WETHBalances;
 
 
