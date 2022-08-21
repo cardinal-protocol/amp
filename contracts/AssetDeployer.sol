@@ -39,21 +39,24 @@ contract AssetDeployer is Pausable {
 	);
 
 
-	/* ========== [STATE-VARIABLE][CONSTANT] ========== */
-	address private constant WETH = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-	address private CPAA;
-
-
 	/* ========== [STATE-VARIABLE] ========== */
+	address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+	
+	address public CPAA;
+	address[] public TOKENS_ACCEPTED;
+
 	address private _assetDeployerRegistry;
 	mapping (uint256 => uint256) _WETHBalances;
 
 
 	/* ========== [CONTRUCTOR] ========== */
-	constructor (address CPAA_)
+	constructor (
+		address CPAA_,
+		address[] memory TOKENS_ACCEPTED_
+	)
 	{
-		// [ASSIGN][CONSTANT]
 		CPAA = CPAA_;
+		TOKENS_ACCEPTED = TOKENS_ACCEPTED_;
 	}
 
 
@@ -84,12 +87,11 @@ contract AssetDeployer is Pausable {
 
 	/* ========== [FUNCTION][MUTATIVE] ========== */
 	/**
-	 * @notice Change _assetDeployerRegistry
-	 * @param assetDeployerRegistry_ address to be set
+	 * @notice Set new _assetDeployerRegistry
+	 * @param assetDeployerRegistry_ address to be assigned to _assetDeployerRegistry
 	*/
 	function set_assetDeployerRegistry(address assetDeployerRegistry_) public
 		auth_assetDeployerRegistry()
-		whenNotPaused()
 	{
 		_assetDeployerRegistry = assetDeployerRegistry_;
 	}
@@ -126,22 +128,27 @@ contract AssetDeployer is Pausable {
 	 * @param CPAATokenId CPAA Token Id
 	 * @param amount Amount that is to be deposited
 	*/
-	function depositWETH(uint256 CPAATokenId, uint256 amount) public payable
-		whenNotPaused()
+	function depositAcceptedTokens(uint256 CPAATokenId, uint256[] amounts) public payable
 		auth_ownsCPAA(CPAATokenId)
+		whenNotPaused()
 	{
-		// [IERC20] Transfer WETH from caller to this contract
-		IERC20(WETH).transferFrom(
-			msg.sender,
-			address(this),
-			amount
-		);
+		for (uint256 i = 0; i < amounts.length; i++) {
+			uint256 amount = amounts[i];
 
-		// [ADD] _WETHBalances
-		_WETHBalances[CPAATokenId] = _WETHBalances[CPAATokenId] + amount;
+			// [IERC20] Transfer WETH from caller to this contract
+			IERC20(WETH).transferFrom(
+				msg.sender,
+				address(this),
+				amount
+			);
+
+			// [ADD] _WETHBalances
+			_WETHBalances[CPAATokenId] = _WETHBalances[CPAATokenId] + amount;
+		}
 
 		// [EMIT]
-		emit DepositedWETH(CPAATokenId, amount);
+		//emit DepositedWETH(CPAATokenId, amount);
+
 	}
 
 	/**
