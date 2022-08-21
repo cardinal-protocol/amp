@@ -17,6 +17,11 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 */
 contract AssetDeployer is Pausable {
 	/* ========== [EVENT] ========== */
+	// New emergency shutdown state (if false, normal operation enabled)
+	event EmergencyShutdown(
+		bool active
+	);
+
 	event DepositedWETH(
 		uint256 CPAATokenId,
 		uint256 amount
@@ -45,18 +50,30 @@ contract AssetDeployer is Pausable {
 	address public CPAA;
 	address[] public TOKENS_ACCEPTED;
 
-	address private _assetDeployerRegistry;
+	string _name;
+	
+	address public _assetDeployerRegistry;
+	
+	uint8 public _assetAllocatorFee;
+
 	mapping (uint256 => uint256) _WETHBalances;
 
 
 	/* ========== [CONTRUCTOR] ========== */
 	constructor (
 		address CPAA_,
-		address[] memory TOKENS_ACCEPTED_
+		address[] memory TOKENS_ACCEPTED_,
+		string memory name_,
+		address assetDeployerRegistry_,
+		uint8 assetAllocatorFee_
 	)
 	{
 		CPAA = CPAA_;
 		TOKENS_ACCEPTED = TOKENS_ACCEPTED_;
+
+		_name = name_;
+		_assetDeployerRegistry = assetDeployerRegistry_;
+		_assetAllocatorFee = assetAllocatorFee_;
 	}
 
 
@@ -87,6 +104,21 @@ contract AssetDeployer is Pausable {
 
 	/* ========== [FUNCTION][MUTATIVE] ========== */
 	/**
+	* ====================================
+	* === AUTH: _assetDeployerRegistry ===
+	* ====================================
+	*/
+	/**
+	 * @notice Set _name
+	 * @param name_ name to be assigned to _name
+	*/
+	function set_name(string memory name_) public
+		auth_assetDeployerRegistry()
+	{
+		_name = name_;
+	}
+
+	/**
 	 * @notice Set new _assetDeployerRegistry
 	 * @param assetDeployerRegistry_ address to be assigned to _assetDeployerRegistry
 	*/
@@ -94,6 +126,16 @@ contract AssetDeployer is Pausable {
 		auth_assetDeployerRegistry()
 	{
 		_assetDeployerRegistry = assetDeployerRegistry_;
+	}
+
+	/**
+	 * @notice Set new _assetAllocatorFee
+	 * @param assetAllocatorFee_ address to be assigned to _assetAllocatorFee
+	*/
+	function set_assetAllocatorFee(uint8 assetAllocatorFee_) public
+		auth_assetDeployerRegistry()
+	{
+		_assetAllocatorFee = assetAllocatorFee_;
 	}
 
 	/**
@@ -108,6 +150,8 @@ contract AssetDeployer is Pausable {
 
 		// Call Pausable "_pause" function
 		super._pause();
+
+		emit EmergencyShutdown(true);
 	}
 
 	/**
@@ -119,16 +163,26 @@ contract AssetDeployer is Pausable {
 	{
 		// Call Pausable "_unpause" function
 		super._unpause();
+
+		emit EmergencyShutdown(false);
 	}
 
 
 	/* ========== [FUNCTION][PUBLIC] ========== */
 	/**
+	* ====================
+	* === AUTH: public ===
+	* ====================
+	*/
+	/**
 	 * @notice [DEPOSIT] WETH
 	 * @param CPAATokenId CPAA Token Id
-	 * @param amount Amount that is to be deposited
+	 * @param amounts Amounts that is to be deposited
 	*/
-	function depositAcceptedTokens(uint256 CPAATokenId, uint256[] amounts) public payable
+	function depositAcceptedTokens(
+		uint256 CPAATokenId,
+		uint256[] memory amounts
+	) public payable
 		auth_ownsCPAA(CPAATokenId)
 		whenNotPaused()
 	{
