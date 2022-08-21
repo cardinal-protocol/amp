@@ -1,13 +1,12 @@
-// contracts/CardinalProtocol.sol
+// contracts/interface/ICardinalProtocol.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
 
 /* ========== [IMPORT] ========== */
-
-// /token
+// // @openzeppelin/contracts/token
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-// /access
+// // @openzeppelin/contracts/access
 import "@openzeppelin/contracts/access/IAccessControlEnumerable.sol";
 
 

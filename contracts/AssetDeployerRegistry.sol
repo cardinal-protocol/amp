@@ -16,11 +16,11 @@ contract AssetDeployerRegistry is CardinalProtocolControl {
 	uint256 public _assetDeployerActiveCount;
 	uint256 public _assetDeployerId;
 	
-	mapping (uint256 => address) _whitelistedAssetDeployerAddresses;
+	mapping (uint256 => address) _activeAssetDeployers;
 
 
 	/* ========== [CONTRUCTOR] ========== */
-	constructor (address cardinalProtocolAddress_, address CPAA_)
+	constructor (address cardinalProtocolAddress_)
 		CardinalProtocolControl(cardinalProtocolAddress_)
 	{}
 
@@ -30,13 +30,17 @@ contract AssetDeployerRegistry is CardinalProtocolControl {
 	 * @notice Whitelist as AssetDeployer contract
 	 * @param assetDeployerAddress Address of AssetDeployer contract
 	*/
-	function whitelistAssetDeployer(address assetDeployerAddress) public
+	function activateAssetDeployer(address assetDeployerAddress) public
 		authLevel_chief()
 	{
-		uint256 newId = _assetDeployerId++;
+		_assetDeployerId++;
 
-		_whitelistedAssetDeployerAddresses[newId] = assetDeployerAddress;
+		_activeAssetDeployers[_assetDeployerId] = assetDeployerAddress;
 	}
 	
-	function latestAssetDeployer() public {}
+	function deactivateAssetDeployer(uint256 assetDeployerId) public
+		authLevel_chief()
+	{
+		delete _activeAssetDeployers[assetDeployerId];
+	}
 }

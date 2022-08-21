@@ -11,15 +11,11 @@ import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 
-/* ========== [IMPORT][PERSONAL] ========== */
-import "./abstract/CardinalProtocolControl.sol";
-
-
 /**
  * @title Asset Deployer
  * @author harpoonjs.eth
 */
-contract AssetDeployer is Pausable, CardinalProtocolControl {
+contract AssetDeployer is Pausable {
 	/* ========== [EVENT] ========== */
 	event DepositedWETH(
 		uint256 CPAATokenId,
@@ -49,12 +45,12 @@ contract AssetDeployer is Pausable, CardinalProtocolControl {
 
 
 	/* ========== [STATE-VARIABLE] ========== */
+	address private _assetDeployerRegistry;
 	mapping (uint256 => uint256) _WETHBalances;
 
 
 	/* ========== [CONTRUCTOR] ========== */
-	constructor (address cardinalProtocolAddress_, address CPAA_)
-		CardinalProtocolControl(cardinalProtocolAddress_)
+	constructor (address CPAA_)
 	{
 		// [ASSIGN][CONSTANT]
 		CPAA = CPAA_;
@@ -62,6 +58,15 @@ contract AssetDeployer is Pausable, CardinalProtocolControl {
 
 
 	/* ========== [MODIFIER] ========== */
+	/**
+	 * @notice 
+	*/
+	modifier auth_assetDeployerRegistry() {
+		require(msg.sender == _assetDeployerRegistry, "!auth");
+
+		_;
+	}
+
 	/**
 	 * @notice Check if msg.sender owns the CPAA
 	 * @param CPAATokenId CPAA Token Id
@@ -74,6 +79,44 @@ contract AssetDeployer is Pausable, CardinalProtocolControl {
 		);
 
 		_;
+	}
+
+
+	/* ========== [FUNCTION][MUTATIVE] ========== */
+	/**
+	 * @notice Change _assetDeployerRegistry
+	 * @param assetDeployerRegistry_ address to be set
+	*/
+	function set_assetDeployerRegistry(address assetDeployerRegistry_) public
+		auth_assetDeployerRegistry()
+		whenNotPaused()
+	{
+		_assetDeployerRegistry = assetDeployerRegistry_;
+	}
+
+	/**
+	 * @notice Pause contract
+	*/
+	function pause() public
+		auth_assetDeployerRegistry()
+		whenNotPaused()
+	{
+		// require that the caller of this function is the chief that is retrieved 
+		// from ADR
+
+		// Call Pausable "_pause" function
+		super._pause();
+	}
+
+	/**
+	 * @notice Unpause contract
+	*/
+	function unpause() public
+		auth_assetDeployerRegistry()
+		whenPaused()
+	{
+		// Call Pausable "_unpause" function
+		super._unpause();
 	}
 
 
