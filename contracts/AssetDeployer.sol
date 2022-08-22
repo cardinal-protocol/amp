@@ -15,19 +15,19 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * @title Asset Deployer
  * @author harpoonjs.eth
 */
-contract AssetDeployer is Pausable {
+abstract contract AssetDeployer is Pausable {
 	/* ========== [EVENT] ========== */
 	// New emergency shutdown state (if false, normal operation enabled)
 	event EmergencyShutdown(
 		bool active
 	);
 
-	event DepositedWETH(
+	event DepositedAcceptedTokens(
 		uint256 CPAATokenId,
-		uint256 amount
+		uint256[] amounts
 	);
 
-	event WithdrewWETH(
+	event WithdrewAcceptedTokens(
 		uint256 CPAATokenId,
 		uint256 amount
 	);
@@ -45,10 +45,8 @@ contract AssetDeployer is Pausable {
 
 
 	/* ========== [STATE-VARIABLE] ========== */
-	address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-	
 	address public CPAA;
-	address[] public TOKENS_ACCEPTED;
+	address[] public ACCEPTED_TOKENS;
 
 	string _name;
 	
@@ -56,20 +54,20 @@ contract AssetDeployer is Pausable {
 	
 	uint8 public _assetAllocatorFee;
 
-	mapping (uint256 => uint256) _WETHBalances;
+	mapping (uint256 => uint256[]) _balanceOfs;
 
 
 	/* ========== [CONTRUCTOR] ========== */
 	constructor (
 		address CPAA_,
-		address[] memory TOKENS_ACCEPTED_,
+		address[] memory ACCEPTED_TOKENS_,
 		string memory name_,
 		address assetDeployerRegistry_,
 		uint8 assetAllocatorFee_
 	)
 	{
 		CPAA = CPAA_;
-		TOKENS_ACCEPTED = TOKENS_ACCEPTED_;
+		ACCEPTED_TOKENS = ACCEPTED_TOKENS_;
 
 		_name = name_;
 		_assetDeployerRegistry = assetDeployerRegistry_;
@@ -175,7 +173,8 @@ contract AssetDeployer is Pausable {
 	* ====================
 	*/
 	/**
-	 * @notice [DEPOSIT] WETH
+	 * @notice [DEPOSIT] Accepted Tokens
+	 * NOTE: CPAATokenId is used for Auth
 	 * @param CPAATokenId CPAA Token Id
 	 * @param amounts Amounts that is to be deposited
 	*/
@@ -186,48 +185,43 @@ contract AssetDeployer is Pausable {
 		auth_ownsCPAA(CPAATokenId)
 		whenNotPaused()
 	{
-		for (uint256 i = 0; i < amounts.length; i++) {
+		// [REQUIRE] Correct amounts length
+		require(amounts.length == ACCEPTED_TOKENS.length, "Invalid amounts");
+
+		// [FOR] Each accepted tokens
+		for (uint256 i = 0; i < ACCEPTED_TOKENS.length; i++) {
+			address tokensAccepted = ACCEPTED_TOKENS[i];
 			uint256 amount = amounts[i];
 
-			// [IERC20] Transfer WETH from caller to this contract
-			IERC20(WETH).transferFrom(
+			// [IERC20] Transfer tokens from caller to this contract
+			IERC20(tokensAccepted).transferFrom(
 				msg.sender,
 				address(this),
 				amount
 			);
 
-			// [ADD] _WETHBalances
-			_WETHBalances[CPAATokenId] = _WETHBalances[CPAATokenId] + amount;
+			// [ADD] _balanceOfs
+			_balanceOfs[CPAATokenId][i] = _balanceOfs[CPAATokenId][i] + amount;
 		}
 
 		// [EMIT]
-		//emit DepositedWETH(CPAATokenId, amount);
-
+		emit DepositedAcceptedTokens(CPAATokenId, amounts);
 	}
 
 	/**
-	 * @notice [WITHDRAW] WETH
+	 * @notice [WITHDRAW] Accepted Tokens
+	 * NOTE: CPAATokenId is used for Auth
 	 * @param CPAATokenId CPAA Token Id
 	 * @param amount Amount that is to be withdrawn
 	*/
-	function withdrawWETH(uint256 CPAATokenId, uint256 amount) public payable {
-		require(_WETHBalances[CPAATokenId] >= amount, "You do not have enough WETH");
-
-		IERC20(WETH).transferFrom(
-			address(this),
-			msg.sender,
-			amount
-		);
-
-		// [SUBTRACT] _WETHBalances
-		_WETHBalances[CPAATokenId] = _WETHBalances[CPAATokenId] - amount;
-
-		// [EMIT]
-		emit WithdrewWETH(CPAATokenId, amount);
-	}
+	function withdrawAcceptedTokens(
+		uint256 CPAATokenId,
+		uint256 amount
+	) public payable {}
 
 	/**
 	 * @notice [DEPOSIT-TO] Strategy 
+	 * NOTE: CPAATokenId is used for Auth
 	 * @param CPAATokenId CPAA Token Id
 	*/
 	function depositToStrategy(
@@ -244,13 +238,11 @@ contract AssetDeployer is Pausable {
 			strategyId,
 			amounts
 		);
-
-		// Reset balance
-		_WETHBalances[CPAATokenId] = 0;
 	}
 
 	/**
 	 * @notice [WITHDRAW-FROM] Strategy
+	 * NOTE: CPAATokenId is used for Auth
 	 * @param CPAATokenId CPAA Token Id
 	*/
 	function withdrawFromStrategy(
