@@ -17,10 +17,9 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 */
 abstract contract AssetDeployer is Pausable {
 	/* ========== [EVENT] ========== */
-	// New emergency shutdown state (if false, normal operation enabled)
-	event EmergencyShutdown(
-		bool active
-	);
+	event activated();
+
+	event deactivated();
 
 	event DepositedAcceptedTokens(
 		uint256 CPAATokenId,
@@ -149,7 +148,8 @@ abstract contract AssetDeployer is Pausable {
 		// Call Pausable "_pause" function
 		super._pause();
 
-		emit EmergencyShutdown(true);
+		// [EMIT]
+		emit deactivated();
 	}
 
 	/**
@@ -162,7 +162,8 @@ abstract contract AssetDeployer is Pausable {
 		// Call Pausable "_unpause" function
 		super._unpause();
 
-		emit EmergencyShutdown(false);
+		// [EMIT]
+		emit activated();
 	}
 
 
