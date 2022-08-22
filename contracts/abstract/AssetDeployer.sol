@@ -45,7 +45,7 @@ abstract contract AssetDeployer is Pausable {
 
 	string _name;
 	
-	address public _assetDeployerRegistry;
+	address public _assetDeployerMaster;
 	
 	uint8 public _assetAllocatorFee;
 
@@ -57,7 +57,7 @@ abstract contract AssetDeployer is Pausable {
 		address CPAA_,
 		address[] memory ACCEPTED_TOKENS_,
 		string memory name_,
-		address assetDeployerRegistry_,
+		address assetDeployerMaster_,
 		uint8 assetAllocatorFee_
 	)
 	{
@@ -65,7 +65,7 @@ abstract contract AssetDeployer is Pausable {
 		ACCEPTED_TOKENS = ACCEPTED_TOKENS_;
 
 		_name = name_;
-		_assetDeployerRegistry = assetDeployerRegistry_;
+		_assetDeployerMaster = assetDeployerMaster_;
 		_assetAllocatorFee = assetAllocatorFee_;
 
 		super._pause();
@@ -76,8 +76,8 @@ abstract contract AssetDeployer is Pausable {
 	/**
 	 * @notice 
 	*/
-	modifier auth_assetDeployerRegistry() {
-		require(msg.sender == _assetDeployerRegistry, "!auth");
+	modifier auth_assetDeployerMaster() {
+		require(msg.sender == _assetDeployerMaster, "!auth");
 
 		_;
 	}
@@ -100,7 +100,7 @@ abstract contract AssetDeployer is Pausable {
 	/* ========== [FUNCTION][MUTATIVE] ========== */
 	/**
 	* ====================================
-	* === AUTH: _assetDeployerRegistry ===
+	* === AUTH: _assetDeployerMaster ===
 	* ====================================
 	*/
 	/**
@@ -108,19 +108,19 @@ abstract contract AssetDeployer is Pausable {
 	 * @param name_ name to be assigned to _name
 	*/
 	function set_name(string memory name_) public
-		auth_assetDeployerRegistry()
+		auth_assetDeployerMaster()
 	{
 		_name = name_;
 	}
 
 	/**
-	 * @notice Set new _assetDeployerRegistry
-	 * @param assetDeployerRegistry_ address to be assigned to _assetDeployerRegistry
+	 * @notice Set new _assetDeployerMaster
+	 * @param assetDeployerMaster_ address to be assigned to _assetDeployerMaster
 	*/
-	function set_assetDeployerRegistry(address assetDeployerRegistry_) public
-		auth_assetDeployerRegistry()
+	function set_assetDeployerMaster(address assetDeployerMaster_) public
+		auth_assetDeployerMaster()
 	{
-		_assetDeployerRegistry = assetDeployerRegistry_;
+		_assetDeployerMaster = assetDeployerMaster_;
 	}
 
 	/**
@@ -128,7 +128,7 @@ abstract contract AssetDeployer is Pausable {
 	 * @param assetAllocatorFee_ address to be assigned to _assetAllocatorFee
 	*/
 	function set_assetAllocatorFee(uint8 assetAllocatorFee_) public
-		auth_assetDeployerRegistry()
+		auth_assetDeployerMaster()
 	{
 		_assetAllocatorFee = assetAllocatorFee_;
 	}
@@ -138,7 +138,7 @@ abstract contract AssetDeployer is Pausable {
 	*/
 	function pause() public
 		whenNotPaused()
-		auth_assetDeployerRegistry()
+		auth_assetDeployerMaster()
 	{
 		// require that the caller of this function is the chief that is retrieved 
 		// from ADR
@@ -152,7 +152,7 @@ abstract contract AssetDeployer is Pausable {
 	*/
 	function unpause() public
 		whenPaused()
-		auth_assetDeployerRegistry()
+		auth_assetDeployerMaster()
 	{
 		// Call Pausable "_unpause" function
 		super._unpause();

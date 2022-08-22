@@ -1,4 +1,4 @@
-// contracts/AssetDeployerRegistry.sol
+// contracts/AssetDeployerMaster.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
@@ -12,7 +12,7 @@ import "./interface/IAssetDeployer.sol";
  * @title Asset Deployer Registry
  * @author harpoonjs.eth
 */
-contract AssetDeployerRegistry is CardinalProtocolControl {
+contract AssetDeployerMaster is CardinalProtocolControl {
 	/* ========== [STATE-VARIABLE] ========== */
 	uint256 public _assetDeployerIncrement;
 	uint256 public _assetDeployerActiveCount;
