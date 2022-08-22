@@ -17,10 +17,6 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 */
 abstract contract AssetDeployer is Pausable {
 	/* ========== [EVENT] ========== */
-	event activated();
-
-	event deactivated();
-
 	event DepositedAcceptedTokens(
 		uint256 CPAATokenId,
 		uint256[] amounts
@@ -71,6 +67,8 @@ abstract contract AssetDeployer is Pausable {
 		_name = name_;
 		_assetDeployerRegistry = assetDeployerRegistry_;
 		_assetAllocatorFee = assetAllocatorFee_;
+
+		super._pause();
 	}
 
 
@@ -139,31 +137,25 @@ abstract contract AssetDeployer is Pausable {
 	 * @notice Pause contract
 	*/
 	function pause() public
-		auth_assetDeployerRegistry()
 		whenNotPaused()
+		auth_assetDeployerRegistry()
 	{
 		// require that the caller of this function is the chief that is retrieved 
 		// from ADR
 
 		// Call Pausable "_pause" function
 		super._pause();
-
-		// [EMIT]
-		emit deactivated();
 	}
 
 	/**
 	 * @notice Unpause contract
 	*/
 	function unpause() public
-		auth_assetDeployerRegistry()
 		whenPaused()
+		auth_assetDeployerRegistry()
 	{
 		// Call Pausable "_unpause" function
 		super._unpause();
-
-		// [EMIT]
-		emit activated();
 	}
 
 
@@ -183,8 +175,8 @@ abstract contract AssetDeployer is Pausable {
 		uint256 CPAATokenId,
 		uint256[] memory amounts
 	) public payable
-		auth_ownsCPAA(CPAATokenId)
 		whenNotPaused()
+		auth_ownsCPAA(CPAATokenId)
 	{
 		// [REQUIRE] Correct amounts length
 		require(amounts.length == ACCEPTED_TOKENS.length, "Invalid amounts");
@@ -218,7 +210,10 @@ abstract contract AssetDeployer is Pausable {
 	function withdrawAcceptedTokens(
 		uint256 CPAATokenId,
 		uint256[] memory amounts
-	) public payable {
+	) public payable
+		whenNotPaused()
+		auth_ownsCPAA(CPAATokenId)
+	{
 
 	}
 

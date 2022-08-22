@@ -3,11 +3,7 @@
 pragma solidity ^0.8.9;
 
 
-/* ========== [IMPORT][PERSONAL] ========== */
-import "./CardinalProtocolControl.sol";
-
-
-abstract contract Strategy is CardinalProtocolControl {
+abstract contract Strategy {
 	/* ========== [STATE-VARIABLE][CONSTANT] ========== */
 	address[] public ACCEPTED_TOKENS;
 	address public CPAA;
@@ -19,7 +15,7 @@ abstract contract Strategy is CardinalProtocolControl {
 	bool public _active;
 
 	mapping (uint256 => uint256[]) public _undeployedBalances;
-	mapping (uint256 => uint256) public _deployedBalances;
+	mapping (uint256 => uint256[]) public _deployedBalances;
 	mapping (uint256 => uint256) public _withdrawRequests;
 
 
@@ -31,6 +27,7 @@ abstract contract Strategy is CardinalProtocolControl {
 	) {
 		// [ASSIGN][CONSTANT]
 		ACCEPTED_TOKENS = _ACCEPTED_TOKENS;
+		//RETURNABLE_TOKENS = _RETURNABLE_TOKENS;
 		CPAA = CPAA_;
 
 		// [ASSIGN]
