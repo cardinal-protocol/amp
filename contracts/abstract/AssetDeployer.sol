@@ -53,7 +53,7 @@ abstract contract AssetDeployer is Pausable {
 	
 	uint8 public _assetAllocatorFee;
 
-	mapping (uint256 => uint256[]) _balanceOfs;
+	mapping (uint256 => uint256[]) _balancesOf;
 
 
 	/* ========== [CONTRUCTOR] ========== */
@@ -201,8 +201,8 @@ abstract contract AssetDeployer is Pausable {
 				amount
 			);
 
-			// [ADD] _balanceOfs
-			_balanceOfs[CPAATokenId][i] = _balanceOfs[CPAATokenId][i] + amount;
+			// [ADD] _balancesOf
+			_balancesOf[CPAATokenId][i] = _balancesOf[CPAATokenId][i] + amount;
 		}
 
 		// [EMIT]
@@ -213,12 +213,14 @@ abstract contract AssetDeployer is Pausable {
 	 * @notice [WITHDRAW] Accepted Tokens
 	 * NOTE: CPAATokenId is used for Auth
 	 * @param CPAATokenId CPAA Token Id
-	 * @param amount Amount that is to be withdrawn
+	 * @param amounts Amounts that are to be withdrawn
 	*/
 	function withdrawAcceptedTokens(
 		uint256 CPAATokenId,
-		uint256 amount
-	) public payable {}
+		uint256[] memory amounts
+	) public payable {
+
+	}
 
 	/**
 	 * @notice [DEPOSIT-TO] Strategy 
