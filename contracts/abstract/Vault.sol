@@ -1,4 +1,4 @@
-// contracts/AssetDeployer.sol
+// contracts/Vault.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * @title Asset Deployer
  * @author harpoonjs.eth
 */
-abstract contract AssetDeployer is Pausable {
+abstract contract Vault is Pausable {
 	/* ========== [EVENT] ========== */
 	event DepositedAcceptedTokens(
 		uint256 CPAATokenId,
@@ -45,7 +45,7 @@ abstract contract AssetDeployer is Pausable {
 
 	string _name;
 	
-	address public _assetDeployerMaster;
+	address public _vaultMaster;
 	
 	uint8 public _assetAllocatorFee;
 
@@ -57,7 +57,7 @@ abstract contract AssetDeployer is Pausable {
 		address CPAA_,
 		address[] memory ACCEPTED_TOKENS_,
 		string memory name_,
-		address assetDeployerMaster_,
+		address vaultMaster_,
 		uint8 assetAllocatorFee_
 	)
 	{
@@ -65,7 +65,7 @@ abstract contract AssetDeployer is Pausable {
 		ACCEPTED_TOKENS = ACCEPTED_TOKENS_;
 
 		_name = name_;
-		_assetDeployerMaster = assetDeployerMaster_;
+		_vaultMaster = vaultMaster_;
 		_assetAllocatorFee = assetAllocatorFee_;
 
 		super._pause();
@@ -76,8 +76,8 @@ abstract contract AssetDeployer is Pausable {
 	/**
 	 * @notice 
 	*/
-	modifier auth_assetDeployerMaster() {
-		require(msg.sender == _assetDeployerMaster, "!auth");
+	modifier auth_vaultMaster() {
+		require(msg.sender == _vaultMaster, "!auth");
 
 		_;
 	}
@@ -99,28 +99,28 @@ abstract contract AssetDeployer is Pausable {
 
 	/* ========== [FUNCTION][MUTATIVE] ========== */
 	/**
-	* ====================================
-	* === AUTH: _assetDeployerMaster ===
-	* ====================================
+	* ==================================
+	* === AUTH: _vaultMaster ===
+	* ==================================
 	*/
 	/**
 	 * @notice Set _name
 	 * @param name_ name to be assigned to _name
 	*/
 	function set_name(string memory name_) public
-		auth_assetDeployerMaster()
+		auth_vaultMaster()
 	{
 		_name = name_;
 	}
 
 	/**
-	 * @notice Set new _assetDeployerMaster
-	 * @param assetDeployerMaster_ address to be assigned to _assetDeployerMaster
+	 * @notice Set new _vaultMaster
+	 * @param vaultMaster_ address to be assigned to _vaultMaster
 	*/
-	function set_assetDeployerMaster(address assetDeployerMaster_) public
-		auth_assetDeployerMaster()
+	function set_vaultMaster(address vaultMaster_) public
+		auth_vaultMaster()
 	{
-		_assetDeployerMaster = assetDeployerMaster_;
+		_vaultMaster = vaultMaster_;
 	}
 
 	/**
@@ -128,7 +128,7 @@ abstract contract AssetDeployer is Pausable {
 	 * @param assetAllocatorFee_ address to be assigned to _assetAllocatorFee
 	*/
 	function set_assetAllocatorFee(uint8 assetAllocatorFee_) public
-		auth_assetDeployerMaster()
+		auth_vaultMaster()
 	{
 		_assetAllocatorFee = assetAllocatorFee_;
 	}
@@ -138,7 +138,7 @@ abstract contract AssetDeployer is Pausable {
 	*/
 	function pause() public
 		whenNotPaused()
-		auth_assetDeployerMaster()
+		auth_vaultMaster()
 	{
 		// require that the caller of this function is the chief that is retrieved 
 		// from ADR
@@ -152,7 +152,7 @@ abstract contract AssetDeployer is Pausable {
 	*/
 	function unpause() public
 		whenPaused()
-		auth_assetDeployerMaster()
+		auth_vaultMaster()
 	{
 		// Call Pausable "_unpause" function
 		super._unpause();

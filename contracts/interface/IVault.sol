@@ -3,7 +3,7 @@
 pragma solidity ^0.8.9;
 
 
-interface IAssetDeployer {
+interface IVault {
 	function set_name(string memory name_) external;
 
 	function set_assetDeployerRegistry(address assetDeployerRegistry_) external;
