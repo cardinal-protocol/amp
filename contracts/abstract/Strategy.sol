@@ -1,4 +1,4 @@
-// contracts/example/Strategy.sol
+// contracts/abstract/Strategy.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
