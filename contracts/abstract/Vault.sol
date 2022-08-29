@@ -14,6 +14,10 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 /**
  * @title Asset Deployer
  * @author harpoonjs.eth
+ *
+ * @notice Functions Handled
+ * - Allow _vaultMaster to pause/unpause
+ * - Allow CPAA token holder to transfer tokens into/out this contract
 */
 abstract contract Vault is Pausable {
 	/* ========== [EVENT] ========== */
@@ -99,9 +103,9 @@ abstract contract Vault is Pausable {
 
 	/* ========== [FUNCTION][MUTATIVE] ========== */
 	/**
-	* ==================================
+	* ==========================
 	* === AUTH: _vaultMaster ===
-	* ==================================
+	* ==========================
 	*/
 	/**
 	 * @notice Set _name
