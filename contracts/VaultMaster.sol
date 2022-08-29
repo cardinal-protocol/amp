@@ -11,6 +11,10 @@ import "./interface/IVault.sol";
 /**
  * @title Vault Master
  * @author harpoonjs.eth
+ * @notice Tasks handled by Vault Master
+ * - Store active vaults and Count
+ * - Launch approved vaults
+ * - Pause/Unpause valuts
 */
 contract VaultMaster is CardinalProtocolControl {
 	/* ========== [STATE-VARIABLE] ========== */
