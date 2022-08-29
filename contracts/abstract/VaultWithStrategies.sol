@@ -3,7 +3,31 @@
 pragma solidity ^0.8.9;
 
 
-abstract contract Strategy {
+import "./Vault.sol";
+
+
+/**
+ * @title Asset Deployer
+ * @author harpoonjs.eth
+ *
+ * @notice Functions Handled
+ * - Store strategy contract addresses
+ * - Deposit/Withdraw from strategies
+ * - Pause/unpause strategy
+*/
+abstract contract VaultWithStrategies is Vault {
+	/* ========== [EVENT] ========== */
+	event DepositedTokensIntoStrategy(
+		uint256 CPAATokenId,
+		uint64 strategy,
+		uint256[] amounts
+	);
+
+	event WithdrewTokensFromStrategy(
+		uint256 CPAATokenId,
+		uint64 strategy
+	);
+
 	/**
 	 * @notice [DEPOSIT-TO] Strategy 
 	 * NOTE: CPAATokenId is used for Auth
@@ -35,5 +59,5 @@ abstract contract Strategy {
 		uint64 strategyId
 	) public
 		auth_ownsCPAA(CPAATokenId)
-	{}
+		virtual
 }

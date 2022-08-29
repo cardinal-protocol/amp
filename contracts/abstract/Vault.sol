@@ -31,17 +31,6 @@ abstract contract Vault is Pausable {
 		uint256 amount
 	);
 
-	event DepositedTokensIntoStrategy(
-		uint256 CPAATokenId,
-		uint64 strategy,
-		uint256[] amounts
-	);
-
-	event WithdrewTokensFromStrategy(
-		uint256 CPAATokenId,
-		uint64 strategy
-	);
-
 
 	/* ========== [STATE-VARIABLE] ========== */
 	address public CPAA;
@@ -187,18 +176,15 @@ abstract contract Vault is Pausable {
 
 		// [FOR] Each accepted tokens
 		for (uint256 i = 0; i < ACCEPTED_TOKENS.length; i++) {
-			address tokensAccepted = ACCEPTED_TOKENS[i];
-			uint256 amount = amounts[i];
-
 			// [IERC20] Transfer tokens from caller to this contract
-			IERC20(tokensAccepted).transferFrom(
+			IERC20(ACCEPTED_TOKENS[i]).transferFrom(
 				msg.sender,
 				address(this),
-				amount
+				amounts[i]
 			);
-
-			// [ADD] _balancesOf
-			_balancesOf[CPAATokenId][i] = _balancesOf[CPAATokenId][i] + amount;
+		
+			// [MINUS] Balance
+			_balancesOf[CPAATokenId][i] += amounts[i];
 		}
 
 		// [EMIT]
@@ -223,20 +209,18 @@ abstract contract Vault is Pausable {
 
 		// [FOR] Each accepted tokens
 		for (uint256 i = 0; i < ACCEPTED_TOKENS.length; i++) {
-			address tokensAccepted = ACCEPTED_TOKENS[i];
-			uint256 amount = amounts[i];
-
-			// WARNING MAKE SURE CPAA HOLDER OWNS TOKENS
-			// INCOMPLETE!!!
-			// [IERC20] Transfer tokens from caller to this contract
-			IERC20(tokensAccepted).transferFrom(
-				address(this),
-				msg.sender,
-				amount
-			);
-
-			// [ADD] _balancesOf
-			_balancesOf[CPAATokenId][i] = _balancesOf[CPAATokenId][i] + amount;
+			// If CCPA holder has amount in this contract
+			if (_balancesOf[CPAATokenId][i] >= amounts[i]) {
+				// [IERC20] Transfer tokens from caller to this contract
+				IERC20(ACCEPTED_TOKENS[i]).transferFrom(
+					address(this),
+					msg.sender,
+					amounts[i]
+				);
+			
+				// [MINUS] Balance
+				_balancesOf[CPAATokenId][i] -= amounts[i];
+			}
 		}
 
 		// [EMIT]
