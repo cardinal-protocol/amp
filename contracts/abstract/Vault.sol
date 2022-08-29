@@ -218,39 +218,28 @@ abstract contract Vault is Pausable {
 		whenNotPaused()
 		auth_ownsCPAA(CPAATokenId)
 	{
+		// [REQUIRE] Correct amounts length
+		require(amounts.length == ACCEPTED_TOKENS.length, "Invalid amounts");
 
+		// [FOR] Each accepted tokens
+		for (uint256 i = 0; i < ACCEPTED_TOKENS.length; i++) {
+			address tokensAccepted = ACCEPTED_TOKENS[i];
+			uint256 amount = amounts[i];
+
+			// WARNING MAKE SURE CPAA HOLDER OWNS TOKENS
+			// INCOMPLETE!!!
+			// [IERC20] Transfer tokens from caller to this contract
+			IERC20(tokensAccepted).transferFrom(
+				address(this),
+				msg.sender,
+				amount
+			);
+
+			// [ADD] _balancesOf
+			_balancesOf[CPAATokenId][i] = _balancesOf[CPAATokenId][i] + amount;
+		}
+
+		// [EMIT]
+		emit DepositedAcceptedTokens(CPAATokenId, amounts);
 	}
-
-	/**
-	 * @notice [DEPOSIT-TO] Strategy 
-	 * NOTE: CPAATokenId is used for Auth
-	 * @param CPAATokenId CPAA Token Id
-	*/
-	function depositToStrategy(
-		uint256 CPAATokenId,
-		uint64 strategyId,
-		uint256[] memory amounts
-	) public
-		whenNotPaused()
-		auth_ownsCPAA(CPAATokenId)
-	{
-		// Emit
-		emit DepositedTokensIntoStrategy(
-			CPAATokenId,
-			strategyId,
-			amounts
-		);
-	}
-
-	/**
-	 * @notice [WITHDRAW-FROM] Strategy
-	 * NOTE: CPAATokenId is used for Auth
-	 * @param CPAATokenId CPAA Token Id
-	*/
-	function withdrawFromStrategy(
-		uint256 CPAATokenId,
-		uint64 strategyId
-	) public
-		auth_ownsCPAA(CPAATokenId)
-	{}
 }
