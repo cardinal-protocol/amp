@@ -13,7 +13,7 @@ import "./Vault.sol";
  * @notice Functions Handled
  * - Store strategy contract addresses
  * - Deposit/Withdraw from strategies
- * - Pause/unpause strategy
+ * - Set distribution across strategies
 */
 abstract contract VaultWithStrategies is Vault {
 	/* ========== [EVENT] ========== */
@@ -28,6 +28,26 @@ abstract contract VaultWithStrategies is Vault {
 		uint64 strategy
 	);
 
+
+	/* ========== [STATE-VARIABLE] ========== */
+	uint256 public _strategiesIncrement;
+	mapping (uint256 => address) _strategies;
+	mapping (uint256 => uint256) _strategiesDistribution;
+
+
+	/* ========== [CONTRUCTOR] ========== */
+	constructor (address[] strategiesToBeAdded) {
+		_strategiesIncrement = 0;
+
+		for (uint256 i = 0; i < strategiesToBeAdded.length; i++) {
+			_strategies[_strategiesIncrement] = strategiesToBeAdded[i];
+		
+			_strategiesIncrement++;
+		}
+	}
+
+
+	/* ========== [FUNCTION][MUTATIVE] ========== */
 	/**
 	 * @notice [DEPOSIT-TO] Strategy 
 	 * NOTE: CPAATokenId is used for Auth
