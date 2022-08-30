@@ -32,16 +32,20 @@ abstract contract VaultWithStrategies is Vault {
 	/* ========== [STATE-VARIABLE] ========== */
 	uint256 public _strategiesIncrement;
 	mapping (uint256 => address) _strategies;
-	mapping (uint256 => uint256) _strategiesDistribution;
+	mapping (uint256 => uint) _strategiesDistribution;
 
 
 	/* ========== [CONTRUCTOR] ========== */
 	constructor (address[] strategiesToBeAdded) {
 		_strategiesIncrement = 0;
 
+		uint sDistribution = 100 / strategiesToBeAdded.length;
+
 		for (uint256 i = 0; i < strategiesToBeAdded.length; i++) {
 			_strategies[_strategiesIncrement] = strategiesToBeAdded[i];
 		
+			_strategiesDistribution[_strategiesIncrement] = sDistribution;
+
 			_strategiesIncrement++;
 		}
 	}
@@ -49,19 +53,20 @@ abstract contract VaultWithStrategies is Vault {
 
 	/* ========== [FUNCTION][MUTATIVE] ========== */
 	/**
-	 * @notice [DEPOSIT-TO] Strategy 
+	 * @notice [DEPOSIT-TO] Strategies 
 	 * NOTE: CPAATokenId is used for Auth
 	 * @param CPAATokenId CPAA Token Id
 	*/
-	function depositToStrategy(
+	function depositToStrategies(
 		uint256 CPAATokenId,
 		uint64 strategyId,
 		uint256[] memory amounts
 	) public
 		whenNotPaused()
 		auth_ownsCPAA(CPAATokenId)
+		virtual
 	{
-		// Emit
+		// [EMIT]
 		emit DepositedTokensIntoStrategy(
 			CPAATokenId,
 			strategyId,
@@ -70,7 +75,7 @@ abstract contract VaultWithStrategies is Vault {
 	}
 
 	/**
-	 * @notice [WITHDRAW-FROM] Strategy
+	 * @notice [WITHDRAW-FROM] Strategies
 	 * NOTE: CPAATokenId is used for Auth
 	 * @param CPAATokenId CPAA Token Id
 	*/
