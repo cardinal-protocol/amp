@@ -7,9 +7,10 @@ import "./Vault.sol";
 
 
 /**
- * @title Asset Deployer
+ * @title Vault With Strategies
  * @author harpoonjs.eth
- *
+ * 
+ * NOTE: Extends "Vault" contract
  * @notice Functions Handled
  * - Store strategy contract addresses
  * - Deposit/Withdraw from strategies
